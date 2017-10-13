@@ -23,15 +23,15 @@ The goals / steps of this project are the following:
 ###Here I will consider the rubric points individually and describe how I addressed each point in my implementation.  
 
 ---
-###Writeup / README
+### Writeup / README
 
-####1. Provide a Writeup / README that includes all the rubric points and how you addressed each one.  You can submit your writeup as markdown or pdf.  [Here](https://github.com/udacity/CarND-Vehicle-Detection/blob/master/writeup_template.md) is a template writeup for this project you can use as a guide and a starting point.  
+#### 1. Provide a Writeup / README that includes all the rubric points and how you addressed each one.  You can submit your writeup as markdown or pdf.  [Here](https://github.com/udacity/CarND-Vehicle-Detection/blob/master/writeup_template.md) is a template writeup for this project you can use as a guide and a starting point.  
 
 The project comes with two notebooks, the first was used to generate example images for the report and to train a classifier, the second contains the pipeline for processing the video.
 
-###Histogram of Oriented Gradients (HOG)
+### Histogram of Oriented Gradients (HOG)
 
-####1. Explain how (and identify where in your code) you extracted HOG features from the training images.
+#### 1. Explain how (and identify where in your code) you extracted HOG features from the training images.
 I started with some exploratory analysis of the data, an example of car and not-car images from the default dataset is shown here:
 ![alt text][image1]
 In order to improve the performance of the classifier I attempted to include the two additional datasets by extracting the bounding boxes and randomly selecting boxes not showing cars. Unfortunately
@@ -47,13 +47,13 @@ Additionally, color features and spatial features were extracted as shown in cla
 ![alt text][image2]
 
 
-####2. Explain how you settled on your final choice of HOG parameters.
+#### 2. Explain how you settled on your final choice of HOG parameters.
 
 After building a working pipeline I quickly ran into problems with false positives and tried tuning parameters, including the hog parameters. Later I understood that the issues are related more to the training
 data and therefore used the same HOG parameters suggested in class, which worked quite well after the training data issued had been resolved. I used all color channels, orient of 9, 8 pixels per cell and 2 cells per block.
 The one HOG paramter that did seem to have a stronger impact was the choice of color space. Both HSV and YCrCb performed better than RGB, I eventually used YCrCb.
 
-####3. Describe how (and identify where in your code) you trained a classifier using your selected HOG features (and color features if you used them).
+#### 3. Describe how (and identify where in your code) you trained a classifier using your selected HOG features (and color features if you used them).
 The classifier uses a combination of HOG, color and spatial features, as shown in class.
 
 Due to issues with false positives I spent quite a bit of time experimenting with various classifiers and modifications to the training data. Initial attempts to modify the training data did not work out and the non-linear 
@@ -65,9 +65,9 @@ and adding manually collected slices of problematic ares (road in some color con
 The final classifier has an accuracy of 0.9942, which is a bit misleading as tests on images and video still reveal a relatively large number of false positives (that could be removed with thresholding).
 
 
-###Sliding Window Search
+### Sliding Window Search
 
-####1. Describe how (and identify where in your code) you implemented a sliding window search.  How did you decide what scales to search and how much to overlap windows?
+#### 1. Describe how (and identify where in your code) you implemented a sliding window search.  How did you decide what scales to search and how much to overlap windows?
 
 I used the sliding window with HOG sub-sampling as suggested in class with several scale parameters, varying y-position starting points and a minimum x-position value. The upper half of the image
 was ignored due to an unfortunate lack of flying Deloreans in the project video. Despite the sub-sampling the performance on the video is still quite bad, probably some parameter tuning may help 
@@ -76,7 +76,7 @@ The following image shows the results of sliding windows (with scale parameter 1
 
 ![alt text][image5]
 
-####2. Show some examples of test images to demonstrate how your pipeline is working.  What did you do to optimize the performance of your classifier?
+#### 2. Show some examples of test images to demonstrate how your pipeline is working.  What did you do to optimize the performance of your classifier?
 
 As described above, the video pipeline classification performance was mostly improved by augmenting the training data. As there were still false positives
 I used heatmaps and thresholding to keep only high-confidence windows. The following image shows an example of thresholding on a heatmap on a test image with an early version of the classifier,
@@ -90,25 +90,23 @@ step is ignored to have a fresh starting point for detection).
 
 ### Video Implementation
 
-####1. Provide a link to your final video output.  Your pipeline should perform reasonably well on the entire project video (somewhat wobbly or unstable bounding boxes are ok as long as you are identifying the vehicles most of the time with minimal false positives.)
+#### 1. Provide a link to your final video output.  Your pipeline should perform reasonably well on the entire project video (somewhat wobbly or unstable bounding boxes are ok as long as you are identifying the vehicles most of the time with minimal false positives.)
 Here's a [link to my video result](./project_video_out.mp4)
-The box position could be a little more consistent and react faster to new objects (queue perhaps too long). There is one false positive detection later in the video that was kind of stubborn.
+The box position could be a little more consistent (e.g. smoothing) and react faster to new objects (queue perhaps too long).
 
-####2. Describe how (and identify where in your code) you implemented some kind of filter for false positives and some method for combining overlapping bounding boxes.
+#### 2. Describe how (and identify where in your code) you implemented some kind of filter for false positives and some method for combining overlapping bounding boxes.
 
-I only kept reasonably high confidence detection (predict_proba > 0.75) and stored them in a queue. The boxes were added to a heatmap and thresholded to produce one larger bounding box
-per vehicle. I also used the distance to new boxes to reject false positives as described above.
+I only kept reasonably high confidence detection (predict_proba > 0.75) and stored them in a queue. The boxes were added to a heatmap and thresholded to produce one larger bounding box per vehicle. I also used the distance to new boxes to reject false positives as described above.
 
 
 
 ---
 
-###Discussion
+### Discussion
 
-####1. Briefly discuss any problems / issues you faced in your implementation of this project.  Where will your pipeline likely fail?  What could you do to make it more robust?
+#### 1. Briefly discuss any problems / issues you faced in your implementation of this project.  Where will your pipeline likely fail?  What could you do to make it more robust?
 The largest problem was the bad performance of the classifier, probably related to lack of training data.
 
-While the pipeline works it is customized to this one video. It seems that the classifier is not very robust, so even small changes in conditions are likely to be a problem. Additionally, the training
-set is relatively small. To increase robustness more training data (highway, urban traffic, different weather conditions, crossing roads etc.) and neural networks for object detection would probably 
+While the pipeline works it is customized to this one video. It seems that the classifier is not very robust, so even small changes in conditions are likely to be a problem. Additionally, the training set is relatively small. To increase robustness more training data (highway, urban traffic, different weather conditions, crossing roads etc.) and neural networks for object detection would probably 
 be a good idea.
 
